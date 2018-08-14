@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 
 const base = 'src/';
-const pagePreFix = 'https://github.com/mrhuang2018/canvas-test';
+const pagePreFix = 'https://mrhuang2018.github.io/canvas-test/';
 const sourcePrefix = 'https://github.com/mrhuang2018/canvas-test/tree/master/';
 
 const files = fs.readdirSync(base);
