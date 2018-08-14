@@ -1,0 +1,12 @@
+export * from './constants.js';
+export {_Math as Math} from './math/Math.js';
+export {Color} from './math/Color.js';
+export {Vector2} from './math/Vector2.js';
+export {Vector3} from './math/Vector3.js';
+export {Euler} from './math/Euler.js';
+export {Quaternion} from './math/Quaternion.js';
+export {EventDispatcher} from './core/EventDispatcher.js';
+export {Object3D} from './core/Object3D.js';
+export {Camera} from './cameras/Camera.js';
+export {PerspectiveCamera} from './cameras/PerspectiveCamera.js';
+export {CanvasRenderer} from './renderers/CanvasRenderer.js';
