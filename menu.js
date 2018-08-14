@@ -8,8 +8,8 @@ const fs = require('fs');
 const path = require('path');
 
 const base = 'src/';
-const pagePreFix = 'http://whxaxes.github.io/canvas-test/';
-const sourcePrefix = 'https://github.com/whxaxes/canvas-test/tree/master/';
+const pagePreFix = 'https://github.com/mrhuang2018/canvas-test';
+const sourcePrefix = 'https://github.com/mrhuang2018/canvas-test/tree/master/';
 
 const files = fs.readdirSync(base);
 
@@ -53,7 +53,7 @@ mlList.forEach(function(f) {
       )
         ? RegExp.$1
         : 'Document';
-
+      p[0]=(p[0]).replace(/\\/,'\/');
       const address = pagePreFix + p[0];
       const filedir = path.dirname(sourcePrefix + p[0]);
 
