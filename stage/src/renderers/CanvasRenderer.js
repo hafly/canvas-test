@@ -1,21 +1,29 @@
-import {Vector2} from '../math/Vector2.js';
+import {Vector3} from '../math/Vector3.js';
 
 //canvas渲染器
 function CanvasRenderer() {
     this.canvas = document.createElement('canvas');
     this.context = this.canvas.getContext('2d');
     this.clearColor = '#000000';    //背景色
+
+    this.updateSize = true;
+    if (this.updateSize) {
+        var self = this;
+        window.onresize = function () {
+            self.setSize(window.innerWidth, window.innerHeight);
+        }
+    }
 }
 
 Object.assign(CanvasRenderer.prototype, {
     //获取中心点
     getCenter: function () {
-        return new Vector2(this.canvas.width / 2, this.canvas.height / 2);
+        return new Vector3(this.canvas.width / 2, this.canvas.height / 2, 0);
     },
 
     //设置背景色
     setClearColor: function (color) {
-        this.bgColor = color;
+        this.clearColor = color;
         return this;
     },
 
@@ -72,6 +80,11 @@ Object.assign(CanvasRenderer.prototype, {
 
     clear: function () {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    },
+
+    render: function () {
+        this.context.fillStyle = this.clearColor;
+        this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 });
 

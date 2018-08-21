@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>刚体测试</title>
+    <style>
+        html, body {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #container {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+    <script src="../../../stage/build/stage.js"></script>
+    <script src="../../../stage/libs/stats.min.js"></script>
+    <script src="../../../stage/libs/dat.gui.min.js"></script>
+</head>
+<body>
+<div id="container"></div>
+<script>
+    //TODO 当小球太多的时候两个球之前容易嵌入，但是这个反弹力又不够使其分离，造成一直跳动
+
+    !(function () {
+        function Ball(radius) {
+            STAGE.Object3D.call(this);
+            this.rigidBody = new STAGE.RigidBody();
+
+            this.vx = 0;
+            this.vy = 0;
+            this.radius = radius || 10;
+            this.color = new STAGE.Color(Math.random(), Math.random(), Math.random());
+        }
+
+        Object.assign(Ball.prototype, {
+            draw: function (renderer) {
+                renderer.context.beginPath();
+                renderer.context.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
+                renderer.context.fillStyle = 'rgba(' + (this.color.r * 255).toFixed(0) + ',' + (this.color.g * 255).toFixed(0) + ',' + (this.color.b * 255).toFixed(0) + ',1)';
+                renderer.context.fill();
+            },
+
+            update: function (renderer) {
+                this.oldx = this.position.x;
+                this.oldy = this.position.y;
+                var t = 16 / 1000;
+
+                //平移摩擦力
+                if (this.vx > 0) {
+                    this.vx = Math.abs(this.vx -= this.rigidBody.drag * t);
+                }
+                else if (this.vx < 0) {
+                    this.vx = -Math.abs(this.vx += this.rigidBody.drag * t);
+                }
+
+                //加速度
+                if (this.rigidBody.useGravity) {
+                    this.vy += this.rigidBody.acc * t;
+                }
+
+                //让运动终止
+                // if (Math.abs(this.vx) < 0.1) {
+                //     this.vx = 0;
+                // }
+                // if (Math.abs(this.vy) < 0.1) {
+                //     this.vy = 0;
+                // }
+
+                this.position.x += this.vx * t * 200;
+                this.position.y += this.vy * t * 200;
+
+                if (this.position.y > renderer.canvas.height - this.radius || this.position.y < this.radius) {
+                    this.position.y = this.position.y < this.radius ? this.radius : (renderer.canvas.height - this.radius);
+                    this.vy = -this.vy * this.rigidBody.bounce;
+                }
+
+                if (this.position.x > renderer.canvas.width - this.radius || this.position.x < this.radius) {
+                    this.position.x = this.position.x < this.radius ? this.radius : (renderer.canvas.width - this.radius);
+                    this.derectionX = !this.derectionX;
+                    this.vx = -this.vx * this.rigidBody.bounce;
+                }
+
+                this.draw(renderer);
+            },
+
+            collision: function (balls) {
+                for (var i = 0; i < balls.length; i++) {
+                    var b1 = this, b2 = balls[i];
+                    if (b1 == b2) continue;
+                    var distance = b1.position.distanceTo(b2.position);
+
+                    if (distance < (b1.radius + b2.radius + 1)) {
+                        //获得碰撞后速度的增量
+                        var ax = ((b1.vx - b2.vx) * Math.pow((b1.position.x - b2.position.x), 2) + (b1.vy - b2.vy) * (b1.position.x - b2.position.x) * (b1.position.y - b2.position.y)) / Math.pow(distance, 2);
+                        var ay = ((b1.vy - b2.vy) * Math.pow((b1.position.y - b2.position.y), 2) + (b1.vx - b2.vx) * (b1.position.x - b2.position.x) + (b1.position.y - b2.position.y)) / Math.pow(distance, 2);
+
+                        // if (Math.abs(ax) < 0.1) {
+                        //     b1.vx = 0;
+                        // }
+                        // if (Math.abs(ay) < 0.1) {
+                        //     b1.vy = 0;
+                        // }
+
+                        //给与小球新的速度
+                        b1.vx = (b1.vx - ax) * b1.rigidBody.bounce;
+                        b1.vy = (b1.vy - ay) * b1.rigidBody.bounce;
+                        b2.vx = (b2.vx + ax) * b2.rigidBody.bounce;
+                        b2.vy = (b2.vy + ay) * b2.rigidBody.bounce;
+
+                        //获取两球斜切位置并且强制扭转
+                        var clength = ((b1.radius + b2.radius + 1) - distance) / 2;
+                        var cx = clength * (b1.position.x - b2.position.x) / distance;
+                        var cy = clength * (b1.position.y - b2.position.y) / distance;
+                        b1.position.x = b1.position.x + cx;
+                        b1.position.y = b1.position.y + cy;
+                        b2.position.x = b2.position.x - cx;
+                        b2.position.y = b2.position.y - cy;
+                    }
+                }
+            }
+        });
+
+        STAGE.Ball = Ball;
+    })();
+</script>
+<script>
+    var container;
+    var renderer, stats, gui;
+    var balls = [];
+    var options = {
+        useGravity: true
+    }
+
+    function init() {
+        container = document.getElementById('container');
+        renderer = new STAGE.CanvasRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        container.appendChild(renderer.canvas);
+
+        stats = new Stats();
+        document.body.appendChild(stats.domElement);
+
+        gui = new dat.GUI();
+        gui.add(options, 'useGravity', true, false).onChange(function (val) {
+            for (var i = 0; i < balls.length; i++) {
+                balls[i].rigidBody.useGravity = val;
+            }
+        });
+
+        for (var i = 0; i < 2; i++) {
+            var radius = STAGE.Math.randFloat(10, 20);
+            var b = new STAGE.Ball(radius);
+            b.position.set(STAGE.Math.randFloat(radius, renderer.canvas.width - radius), STAGE.Math.randFloat(radius, renderer.canvas.height / 2 - radius), 0);
+            balls.push(b);
+        }
+
+        clickEvent();
+    }
+
+    function update() {
+        requestAnimationFrame(update);
+        renderer.clear();
+
+        for (var i = 0; i < balls.length; i++) {
+            balls[i].collision(balls);
+            balls[i].update(renderer);
+        }
+
+        stats.update();
+    }
+
+    function clickEvent() {
+        renderer.canvas.onclick = function (event) {
+            event = event || window.event;
+            var x = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft - renderer.canvas.offsetLeft;
+            var y = event.clientY + document.body.scrollTop + document.documentElement.scrollTop - renderer.canvas.offsetTop;
+
+            balls.forEach(function (b) {
+                b.vx = (x - b.position.x) / 40;
+                b.vy = (y - b.position.y) / 40;
+            });
+        };
+    }
+
+    init();
+    update();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>粒子系统重力、碰撞测试</title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #container {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+    <script src="../../stage/build/stage.js"></script>
+    <script src="../../stage/libs/stats.min.js"></script>
+</head>
+<body>
+<div id="container"></div>
+
+<script>
+    // function sampleDirection() {
+    //     var theta = Math.random() * 2 * Math.PI;
+    //     return new STAGE.Vector3(Math.cos(theta), Math.sin(theta), 0);
+    // }
+
+    function sampleDirection(angle1, angle2) {
+        var t = Math.random();
+        var theta = angle1 * t + angle2 * (1 - t);
+        return new STAGE.Vector3(Math.cos(theta), Math.sin(theta), 0);
+    }
+
+    function sampleColor(color1, color2) {
+        var t = Math.random();
+        return color1.multiplyScalar(t).addScalar(color2.multiplyScalar(1 - t));
+    }
+
+    var stats = new Stats();
+    document.body.appendChild(stats.domElement);
+
+    var renderer = new STAGE.CanvasRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor("rgba(0, 0, 0, 0.1)");
+    document.getElementById('container').appendChild(renderer.canvas);
+
+    var ps = new STAGE.ParticleSystem();
+    var rigidBody = new STAGE.RigidBody();
+    // rigidBody.useGravity = false;
+    // rigidBody.isCollider = false;
+
+    // setInterval(function () {
+    //     var p = new STAGE.Particle(new STAGE.Vector3(500, 500, 0), new STAGE.Vector3(0,-5,0), 5, 1,new STAGE.Color(1,1,1));
+    //     p.rigidBody = rigidBody;
+    //     ps.emit(p);
+    //     console.log(ps)
+    // },1000);
+
+    var p = new STAGE.Particle(renderer.getCenter(), new STAGE.Vector3(0,0,0), 300, new STAGE.Color().setStyle('white'), 8);
+    p.rigidBody = rigidBody;
+    ps.emit(p);
+
+    function update() {
+        requestAnimationFrame(update);
+
+        //var p = new STAGE.Particle(renderer.getCenter(), sampleDirection(Math.PI * 1.75, Math.PI * 2).multiply(250), 3, sampleColor(new STAGE.Color('blue'), new STAGE.Color('purple')), 5);
+
+        renderer.render();
+        ps.render(renderer);
+
+        stats.update();
+    }
+
+    update();
+</script>
+</body>
+</html>

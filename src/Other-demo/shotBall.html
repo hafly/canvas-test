@@ -25,10 +25,10 @@
     ctx = canvas.getContext("2d");
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    ballRadius = 12, g = 9.8 , mocali = 0.5, balls = [], collarg = 0.8;
+    ballRadius = 12, g = 9.8 , mocali = 0, balls = [], collarg = 0.8;
     pxpm = canvas.width / 20;   //px/m
 
-    for (var i = 0; i < 100; i++) {
+    for (var i = 0; i < 2; i++) {
       var ball = new Ball(getRandom(ballRadius, canvas.width - ballRadius), getRandom(ballRadius, canvas.height - ballRadius), ballRadius, "rgba(" + parseInt(Math.random() * 255) + "," + parseInt(Math.random() * 255) + "," + parseInt(Math.random() * 255) + " , 1)");
       balls.push(ball);
     }

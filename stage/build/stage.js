@@ -7,7 +7,7 @@
 	var REVISION = '1';
 
 	//运算类
-	var _Math = {
+	var _Math$1 = {
 	    DEG2RAD: Math.PI / 180,
 	    RAD2DEG: 180 / Math.PI,
 	    generateUUID: function (len, radix) {
@@ -75,12 +75,12 @@
 
 	    //角度转弧度
 	    degToRad: function (degrees) {
-	        return degrees * _Math.DEG2RAD;
+	        return degrees * _Math$1.DEG2RAD;
 	    },
 
 	    //弧度转角度
 	    radToDeg: function (radians) {
-	        return radians * _Math.RAD2DEG;
+	        return radians * _Math$1.RAD2DEG;
 	    },
 
 	    //是否是n的2次幂
@@ -182,9 +182,9 @@
 
 	        return function setHSL(h, s, l) {
 	            // h,s,l ranges are in 0.0 - 1.0
-	            h = _Math.euclideanModulo(h, 1);
-	            s = _Math.clamp(s, 0, 1);
-	            l = _Math.clamp(l, 0, 1);
+	            h = _Math$1.euclideanModulo(h, 1);
+	            s = _Math$1.clamp(s, 0, 1);
+	            l = _Math$1.clamp(l, 0, 1);
 
 	            if (s === 0) {
 	                this.r = this.g = this.b = l;
@@ -390,13 +390,284 @@
 	    }
 	});
 
-	//二维向量
-	function Vector2$1(x, y) {
+	function Vector2(x, y) {
 	    this.x = x || 0;
 	    this.y = y || 0;
 	}
 
-	//三维向量
+	Object.defineProperties(Vector2.prototype, {
+	    "width": {
+	        get: function () {
+	            return this.x;
+	        },
+	        set: function (value) {
+	            this.x = value;
+	        }
+	    },
+	    "height": {
+	        get: function () {
+	            return this.y;
+	        },
+	        set: function (value) {
+	            this.y = value;
+	        }
+	    }
+	});
+	Object.assign(Vector2.prototype, {
+	    isVector2: true,
+	    set: function (x, y) {
+	        this.x = x;
+	        this.y = y;
+	        return this;
+	    },
+	    setScalar: function (scalar) {
+	        this.x = scalar;
+	        this.y = scalar;
+	        return this;
+	    },
+	    setX: function (x) {
+	        this.x = x;
+	        return this;
+	    },
+	    setY: function (y) {
+	        this.y = y;
+	        return this;
+	    },
+	    setComponent: function (index, value) {
+	        switch (index) {
+	            case 0:
+	                this.x = value;
+	                break;
+	            case 1:
+	                this.y = value;
+	                break;
+	            default:
+	                throw new Error('index is out of range: ' + index);
+	        }
+	        return this;
+	    },
+	    getComponent: function (index) {
+	        switch (index) {
+	            case 0:
+	                return this.x;
+	            case 1:
+	                return this.y;
+	            default:
+	                throw new Error('index is out of range: ' + index);
+	        }
+	    },
+	    clone: function () {
+	        return new this.constructor(this.x, this.y);
+	    },
+	    copy: function (v) {
+	        this.x = v.x;
+	        this.y = v.y;
+	        return this;
+	    },
+	    add: function (v, w) {
+	        if (w !== undefined) {
+	            console.warn('THREE.Vector2: .add() now only accepts one argument. Use .addVectors( a, b ) instead.');
+	            return this.addVectors(v, w);
+	        }
+	        this.x += v.x;
+	        this.y += v.y;
+	        return this;
+	    },
+	    addScalar: function (s) {
+	        this.x += s;
+	        this.y += s;
+	        return this;
+	    },
+	    addVectors: function (a, b) {
+	        this.x = a.x + b.x;
+	        this.y = a.y + b.y;
+	        return this;
+	    },
+	    addScaledVector: function (v, s) {
+	        this.x += v.x * s;
+	        this.y += v.y * s;
+	        return this;
+	    },
+	    sub: function (v, w) {
+	        if (w !== undefined) {
+	            console.warn('THREE.Vector2: .sub() now only accepts one argument. Use .subVectors( a, b ) instead.');
+	            return this.subVectors(v, w);
+	        }
+	        this.x -= v.x;
+	        this.y -= v.y;
+	        return this;
+	    },
+	    subScalar: function (s) {
+	        this.x -= s;
+	        this.y -= s;
+	        return this;
+	    },
+	    subVectors: function (a, b) {
+	        this.x = a.x - b.x;
+	        this.y = a.y - b.y;
+	        return this;
+	    },
+	    multiply: function (v) {
+	        this.x *= v.x;
+	        this.y *= v.y;
+	        return this;
+	    },
+	    multiplyScalar: function (scalar) {
+	        this.x *= scalar;
+	        this.y *= scalar;
+	        return this;
+	    },
+	    divide: function (v) {
+	        this.x /= v.x;
+	        this.y /= v.y;
+	        return this;
+	    },
+	    divideScalar: function (scalar) {
+	        return this.multiplyScalar(1 / scalar);
+	    },
+	    applyMatrix3: function (m) {
+	        var x = this.x,
+	            y = this.y;
+	        var e = m.elements;
+	        this.x = e[0] * x + e[3] * y + e[6];
+	        this.y = e[1] * x + e[4] * y + e[7];
+	        return this;
+	    },
+	    min: function (v) {
+	        this.x = Math.min(this.x, v.x);
+	        this.y = Math.min(this.y, v.y);
+	        return this;
+	    },
+	    max: function (v) {
+	        this.x = Math.max(this.x, v.x);
+	        this.y = Math.max(this.y, v.y);
+	        return this;
+	    },
+	    clamp: function (min, max) {
+	        // assumes min < max, componentwise
+	        this.x = Math.max(min.x, Math.min(max.x, this.x));
+	        this.y = Math.max(min.y, Math.min(max.y, this.y));
+	        return this;
+	    },
+	    clampScalar: function () {
+	        var min = new Vector2();
+	        var max = new Vector2();
+	        return function clampScalar(minVal, maxVal) {
+	            min.set(minVal, minVal);
+	            max.set(maxVal, maxVal);
+	            return this.clamp(min, max);
+	        };
+	    }(),
+	    clampLength: function (min, max) {
+	        var length = this.length();
+	        return this.divideScalar(length || 1).multiplyScalar(Math.max(min, Math.min(max, length)));
+	    },
+	    floor: function () {
+	        this.x = Math.floor(this.x);
+	        this.y = Math.floor(this.y);
+	        return this;
+	    },
+	    ceil: function () {
+	        this.x = Math.ceil(this.x);
+	        this.y = Math.ceil(this.y);
+	        return this;
+	    },
+	    round: function () {
+	        this.x = Math.round(this.x);
+	        this.y = Math.round(this.y);
+	        return this;
+	    },
+	    roundToZero: function () {
+	        this.x = (this.x < 0) ? Math.ceil(this.x) : Math.floor(this.x);
+	        this.y = (this.y < 0) ? Math.ceil(this.y) : Math.floor(this.y);
+	        return this;
+	    },
+	    negate: function () {
+	        this.x = -this.x;
+	        this.y = -this.y;
+	        return this;
+	    },
+	    dot: function (v) {
+	        return this.x * v.x + this.y * v.y;
+	    },
+	    cross: function (v) {
+	        return this.x * v.y - this.y * v.x;
+	    },
+	    lengthSq: function () {
+	        return this.x * this.x + this.y * this.y;
+	    },
+	    length: function () {
+	        return Math.sqrt(this.x * this.x + this.y * this.y);
+	    },
+	    manhattanLength: function () {
+	        return Math.abs(this.x) + Math.abs(this.y);
+	    },
+	    normalize: function () {
+	        return this.divideScalar(this.length() || 1);
+	    },
+	    angle: function () {
+	        // computes the angle in radians with respect to the positive x-axis
+	        var angle = Math.atan2(this.y, this.x);
+	        if (angle < 0) angle += 2 * Math.PI;
+	        return angle;
+	    },
+	    distanceTo: function (v) {
+	        return Math.sqrt(this.distanceToSquared(v));
+	    },
+	    distanceToSquared: function (v) {
+	        var dx = this.x - v.x,
+	            dy = this.y - v.y;
+	        return dx * dx + dy * dy;
+	    },
+	    manhattanDistanceTo: function (v) {
+	        return Math.abs(this.x - v.x) + Math.abs(this.y - v.y);
+	    },
+	    setLength: function (length) {
+	        return this.normalize().multiplyScalar(length);
+	    },
+	    lerp: function (v, alpha) {
+	        this.x += (v.x - this.x) * alpha;
+	        this.y += (v.y - this.y) * alpha;
+	        return this;
+	    },
+	    lerpVectors: function (v1, v2, alpha) {
+	        return this.subVectors(v2, v1).multiplyScalar(alpha).add(v1);
+	    },
+	    equals: function (v) {
+	        return ((v.x === this.x) && (v.y === this.y));
+	    },
+	    fromArray: function (array, offset) {
+	        if (offset === undefined) offset = 0;
+	        this.x = array[offset];
+	        this.y = array[offset + 1];
+	        return this;
+	    },
+	    toArray: function (array, offset) {
+	        if (array === undefined) array = [];
+	        if (offset === undefined) offset = 0;
+	        array[offset] = this.x;
+	        array[offset + 1] = this.y;
+	        return array;
+	    },
+	    fromBufferAttribute: function (attribute, index, offset) {
+	        if (offset !== undefined) {
+	            console.warn('THREE.Vector2: offset has been removed from .fromBufferAttribute().');
+	        }
+	        this.x = attribute.getX(index);
+	        this.y = attribute.getY(index);
+	        return this;
+	    },
+	    rotateAround: function (center, angle) {
+	        var c = Math.cos(angle),
+	            s = Math.sin(angle);
+	        var x = this.x - center.x;
+	        var y = this.y - center.y;
+	        this.x = x * c - y * s + center.x;
+	        this.y = x * s + y * c + center.y;
+	        return this;
+	    }
+	});
+
 	function Vector3(x, y, z) {
 	    this.x = x || 0;
 	    this.y = y || 0;
@@ -404,21 +675,397 @@
 	}
 
 	Object.assign(Vector3.prototype, {
+	    isVector3: true,
 	    set: function (x, y, z) {
 	        this.x = x;
 	        this.y = y;
 	        this.z = z;
 	        return this;
 	    },
-
-	    //Vector3转屏幕坐标Vector2
-	    toScreen: function (width, height) {
-	        var focalLength = 500;    //焦距
-	        var scale = focalLength / (focalLength + this.z);
-	        var x = width / 2 + this.x * scale;
-	        var y = height / 2 + this.y * scale;
-	        return new Vector2(x, y);
+	    setScalar: function (scalar) {
+	        this.x = scalar;
+	        this.y = scalar;
+	        this.z = scalar;
+	        return this;
 	    },
+	    setX: function (x) {
+	        this.x = x;
+	        return this;
+	    },
+	    setY: function (y) {
+	        this.y = y;
+	        return this;
+	    },
+	    setZ: function (z) {
+	        this.z = z;
+	        return this;
+	    },
+	    setComponent: function (index, value) {
+	        switch (index) {
+	            case 0:
+	                this.x = value;
+	                break;
+	            case 1:
+	                this.y = value;
+	                break;
+	            case 2:
+	                this.z = value;
+	                break;
+	            default:
+	                throw new Error('index is out of range: ' + index);
+	        }
+	        return this;
+	    },
+	    getComponent: function (index) {
+	        switch (index) {
+	            case 0:
+	                return this.x;
+	            case 1:
+	                return this.y;
+	            case 2:
+	                return this.z;
+	            default:
+	                throw new Error('index is out of range: ' + index);
+	        }
+	    },
+	    clone: function () {
+	        return new this.constructor(this.x, this.y, this.z);
+	    },
+	    copy: function (v) {
+	        this.x = v.x;
+	        this.y = v.y;
+	        this.z = v.z;
+	        return this;
+	    },
+	    add: function (v, w) {
+	        if (w !== undefined) {
+	            console.warn('THREE.Vector3: .add() now only accepts one argument. Use .addVectors( a, b ) instead.');
+	            return this.addVectors(v, w);
+	        }
+	        this.x += v.x;
+	        this.y += v.y;
+	        this.z += v.z;
+	        return this;
+	    },
+	    addScalar: function (s) {
+	        this.x += s;
+	        this.y += s;
+	        this.z += s;
+	        return this;
+	    },
+	    addVectors: function (a, b) {
+	        this.x = a.x + b.x;
+	        this.y = a.y + b.y;
+	        this.z = a.z + b.z;
+	        return this;
+	    },
+	    addScaledVector: function (v, s) {
+	        this.x += v.x * s;
+	        this.y += v.y * s;
+	        this.z += v.z * s;
+	        return this;
+	    },
+	    sub: function (v, w) {
+	        if (w !== undefined) {
+	            console.warn('THREE.Vector3: .sub() now only accepts one argument. Use .subVectors( a, b ) instead.');
+	            return this.subVectors(v, w);
+	        }
+	        this.x -= v.x;
+	        this.y -= v.y;
+	        this.z -= v.z;
+	        return this;
+	    },
+	    subScalar: function (s) {
+	        this.x -= s;
+	        this.y -= s;
+	        this.z -= s;
+	        return this;
+	    },
+	    subVectors: function (a, b) {
+	        this.x = a.x - b.x;
+	        this.y = a.y - b.y;
+	        this.z = a.z - b.z;
+	        return this;
+	    },
+	    multiply: function (v, w) {
+	        if (w !== undefined) {
+	            console.warn('THREE.Vector3: .multiply() now only accepts one argument. Use .multiplyVectors( a, b ) instead.');
+	            return this.multiplyVectors(v, w);
+	        }
+	        this.x *= v.x;
+	        this.y *= v.y;
+	        this.z *= v.z;
+	        return this;
+	    },
+	    multiplyScalar: function (scalar) {
+	        this.x *= scalar;
+	        this.y *= scalar;
+	        this.z *= scalar;
+	        return this;
+	    },
+	    multiplyVectors: function (a, b) {
+	        this.x = a.x * b.x;
+	        this.y = a.y * b.y;
+	        this.z = a.z * b.z;
+	        return this;
+	    },
+
+	    applyMatrix3: function (m) {
+	        var x = this.x,
+	            y = this.y,
+	            z = this.z;
+	        var e = m.elements;
+	        this.x = e[0] * x + e[3] * y + e[6] * z;
+	        this.y = e[1] * x + e[4] * y + e[7] * z;
+	        this.z = e[2] * x + e[5] * y + e[8] * z;
+	        return this;
+	    },
+	    applyMatrix4: function (m) {
+	        var x = this.x,
+	            y = this.y,
+	            z = this.z;
+	        var e = m.elements;
+	        var w = 1 / (e[3] * x + e[7] * y + e[11] * z + e[15]);
+	        this.x = (e[0] * x + e[4] * y + e[8] * z + e[12]) * w;
+	        this.y = (e[1] * x + e[5] * y + e[9] * z + e[13]) * w;
+	        this.z = (e[2] * x + e[6] * y + e[10] * z + e[14]) * w;
+	        return this;
+	    },
+	    applyQuaternion: function (q) {
+	        var x = this.x,
+	            y = this.y,
+	            z = this.z;
+	        var qx = q.x,
+	            qy = q.y,
+	            qz = q.z,
+	            qw = q.w;
+	        // calculate quat * vector
+	        var ix = qw * x + qy * z - qz * y;
+	        var iy = qw * y + qz * x - qx * z;
+	        var iz = qw * z + qx * y - qy * x;
+	        var iw = -qx * x - qy * y - qz * z;
+	        // calculate result * inverse quat
+	        this.x = ix * qw + iw * -qx + iy * -qz - iz * -qy;
+	        this.y = iy * qw + iw * -qy + iz * -qx - ix * -qz;
+	        this.z = iz * qw + iw * -qz + ix * -qy - iy * -qx;
+	        return this;
+	    },
+	    transformDirection: function (m) {
+	        // input: THREE.Matrix4 affine matrix
+	        // vector interpreted as a direction
+	        var x = this.x,
+	            y = this.y,
+	            z = this.z;
+	        var e = m.elements;
+	        this.x = e[0] * x + e[4] * y + e[8] * z;
+	        this.y = e[1] * x + e[5] * y + e[9] * z;
+	        this.z = e[2] * x + e[6] * y + e[10] * z;
+	        return this.normalize();
+	    },
+	    divide: function (v) {
+	        this.x /= v.x;
+	        this.y /= v.y;
+	        this.z /= v.z;
+	        return this;
+	    },
+	    divideScalar: function (scalar) {
+	        return this.multiplyScalar(1 / scalar);
+	    },
+	    min: function (v) {
+	        this.x = Math.min(this.x, v.x);
+	        this.y = Math.min(this.y, v.y);
+	        this.z = Math.min(this.z, v.z);
+	        return this;
+	    },
+	    max: function (v) {
+	        this.x = Math.max(this.x, v.x);
+	        this.y = Math.max(this.y, v.y);
+	        this.z = Math.max(this.z, v.z);
+	        return this;
+	    },
+	    clamp: function (min, max) {
+	        // assumes min < max, componentwise
+	        this.x = Math.max(min.x, Math.min(max.x, this.x));
+	        this.y = Math.max(min.y, Math.min(max.y, this.y));
+	        this.z = Math.max(min.z, Math.min(max.z, this.z));
+	        return this;
+	    },
+	    clampLength: function (min, max) {
+	        var length = this.length();
+	        return this.divideScalar(length || 1).multiplyScalar(Math.max(min, Math.min(max, length)));
+	    },
+	    floor: function () {
+	        this.x = Math.floor(this.x);
+	        this.y = Math.floor(this.y);
+	        this.z = Math.floor(this.z);
+	        return this;
+	    },
+	    ceil: function () {
+	        this.x = Math.ceil(this.x);
+	        this.y = Math.ceil(this.y);
+	        this.z = Math.ceil(this.z);
+	        return this;
+	    },
+	    round: function () {
+	        this.x = Math.round(this.x);
+	        this.y = Math.round(this.y);
+	        this.z = Math.round(this.z);
+	        return this;
+	    },
+	    roundToZero: function () {
+	        this.x = (this.x < 0) ? Math.ceil(this.x) : Math.floor(this.x);
+	        this.y = (this.y < 0) ? Math.ceil(this.y) : Math.floor(this.y);
+	        this.z = (this.z < 0) ? Math.ceil(this.z) : Math.floor(this.z);
+	        return this;
+	    },
+	    negate: function () {
+	        this.x = -this.x;
+	        this.y = -this.y;
+	        this.z = -this.z;
+	        return this;
+	    },
+	    dot: function (v) {
+	        return this.x * v.x + this.y * v.y + this.z * v.z;
+	    },
+	    // TODO lengthSquared?
+	    lengthSq: function () {
+	        return this.x * this.x + this.y * this.y + this.z * this.z;
+	    },
+	    length: function () {
+	        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+	    },
+	    manhattanLength: function () {
+	        return Math.abs(this.x) + Math.abs(this.y) + Math.abs(this.z);
+	    },
+	    normalize: function () {
+	        return this.divideScalar(this.length() || 1);
+	    },
+	    setLength: function (length) {
+	        return this.normalize().multiplyScalar(length);
+	    },
+	    lerp: function (v, alpha) {
+	        this.x += (v.x - this.x) * alpha;
+	        this.y += (v.y - this.y) * alpha;
+	        this.z += (v.z - this.z) * alpha;
+	        return this;
+	    },
+	    lerpVectors: function (v1, v2, alpha) {
+	        return this.subVectors(v2, v1).multiplyScalar(alpha).add(v1);
+	    },
+	    cross: function (v, w) {
+	        if (w !== undefined) {
+	            console.warn('THREE.Vector3: .cross() now only accepts one argument. Use .crossVectors( a, b ) instead.');
+	            return this.crossVectors(v, w);
+	        }
+	        return this.crossVectors(this, v);
+	    },
+	    crossVectors: function (a, b) {
+	        var ax = a.x,
+	            ay = a.y,
+	            az = a.z;
+	        var bx = b.x,
+	            by = b.y,
+	            bz = b.z;
+	        this.x = ay * bz - az * by;
+	        this.y = az * bx - ax * bz;
+	        this.z = ax * by - ay * bx;
+	        return this;
+	    },
+	    projectOnVector: function (vector) {
+	        var scalar = vector.dot(this) / vector.lengthSq();
+	        return this.copy(vector).multiplyScalar(scalar);
+	    },
+	    projectOnPlane: function () {
+	        var v1 = new Vector3();
+	        return function projectOnPlane(planeNormal) {
+	            v1.copy(this).projectOnVector(planeNormal);
+	            return this.sub(v1);
+	        };
+	    }(),
+	    reflect: function () {
+	        // reflect incident vector off plane orthogonal to normal
+	        // normal is assumed to have unit length
+	        var v1 = new Vector3();
+	        return function reflect(normal) {
+	            return this.sub(v1.copy(normal).multiplyScalar(2 * this.dot(normal)));
+	        };
+	    }(),
+	    angleTo: function (v) {
+	        var theta = this.dot(v) / (Math.sqrt(this.lengthSq() * v.lengthSq()));
+	        // clamp, to handle numerical problems
+	        return Math.acos(_Math.clamp(theta, -1, 1));
+	    },
+	    distanceTo: function (v) {
+	        return Math.sqrt(this.distanceToSquared(v));
+	    },
+	    distanceToSquared: function (v) {
+	        var dx = this.x - v.x,
+	            dy = this.y - v.y,
+	            dz = this.z - v.z;
+	        return dx * dx + dy * dy + dz * dz;
+	    },
+	    manhattanDistanceTo: function (v) {
+	        return Math.abs(this.x - v.x) + Math.abs(this.y - v.y) + Math.abs(this.z - v.z);
+	    },
+	    setFromSpherical: function (s) {
+	        var sinPhiRadius = Math.sin(s.phi) * s.radius;
+	        this.x = sinPhiRadius * Math.sin(s.theta);
+	        this.y = Math.cos(s.phi) * s.radius;
+	        this.z = sinPhiRadius * Math.cos(s.theta);
+	        return this;
+	    },
+	    setFromCylindrical: function (c) {
+	        this.x = c.radius * Math.sin(c.theta);
+	        this.y = c.y;
+	        this.z = c.radius * Math.cos(c.theta);
+	        return this;
+	    },
+	    setFromMatrixPosition: function (m) {
+	        var e = m.elements;
+	        this.x = e[12];
+	        this.y = e[13];
+	        this.z = e[14];
+	        return this;
+	    },
+	    setFromMatrixScale: function (m) {
+	        var sx = this.setFromMatrixColumn(m, 0).length();
+	        var sy = this.setFromMatrixColumn(m, 1).length();
+	        var sz = this.setFromMatrixColumn(m, 2).length();
+	        this.x = sx;
+	        this.y = sy;
+	        this.z = sz;
+	        return this;
+	    },
+	    setFromMatrixColumn: function (m, index) {
+	        return this.fromArray(m.elements, index * 4);
+	    },
+	    equals: function (v) {
+	        return ((v.x === this.x) && (v.y === this.y) && (v.z === this.z));
+	    },
+	    fromArray: function (array, offset) {
+	        if (offset === undefined) offset = 0;
+	        this.x = array[offset];
+	        this.y = array[offset + 1];
+	        this.z = array[offset + 2];
+	        return this;
+	    },
+	    toArray: function (array, offset) {
+	        if (array === undefined) array = [];
+	        if (offset === undefined) offset = 0;
+	        array[offset] = this.x;
+	        array[offset + 1] = this.y;
+	        array[offset + 2] = this.z;
+	        return array;
+	    },
+	    fromBufferAttribute: function (attribute, index, offset) {
+	        if (offset !== undefined) {
+	            console.warn('THREE.Vector3: offset has been removed from .fromBufferAttribute().');
+	        }
+	        this.x = attribute.getX(index);
+	        this.y = attribute.getY(index);
+	        this.z = attribute.getZ(index);
+	        return this;
+	    }
 	});
 
 	//欧拉角
@@ -502,7 +1149,7 @@
 	function Object3D() {
 	    Object.defineProperties(this, {
 	        'id': {value: object3DId++},
-	        'uuid': {value: _Math.generateUUID()},
+	        'uuid': {value: _Math$1.generateUUID()},
 	        'isObject3D': {value: true}
 	    });
 	    this.type = 'Object3D';
@@ -589,6 +1236,136 @@
 	    },
 	});
 
+	function RigidBody() {
+	    this.mass = 1;              //质量
+	    this.useGravity = true;     //使用重力
+	    this.acc = 9.8;             //加速度
+	    this.drag = 0.1;            //平移阻力
+	    this.angularDrag = 0.05;    //角阻力
+	    this.bounce = 0.6;          //弹性系数
+	    this.isCollider = true;     //是否是碰撞体
+	    this.dt = 100 / 1000;
+	    this.pm = Math.pow(this.dt, 2) * this.acc;
+	}
+
+	Object.assign(RigidBody.prototype, {
+	    checkCollider: function (p, canvas) {
+	        // var y = p.position.y,
+	        //     x = p.position.x;
+
+	        //当碰撞到上下边界
+
+	        if (p.position.y >= canvas.height - p.radius || p.position.y <= p.radius) {
+	            p.velocity.y *= this.bounce * -1;
+
+	            p.position.y = p.position.y < p.radius ? p.radius : (canvas.height - p.radius);
+
+	            //平移摩擦力
+	            if (p.velocity.x > 0) {
+	                p.velocity.x = Math.abs(p.velocity.x -= this.drag * this.dt);
+	            }
+	            else if (p.velocity.x < 0) {
+	                p.velocity.x = -Math.abs(p.velocity.x += this.drag * this.dt);
+	            }
+
+	            //清除移动y
+	            if (Math.abs(p.velocity.y) < 0.1) p.velocity.y = 0;
+	        }
+
+	        //当碰撞到左右边界
+	        if (p.position.x > canvas.width - p.radius || p.position.x < p.radius) {
+	            p.position.x = p.position.x < p.radius ? p.radius : (canvas.width - p.radius);
+	            p.velocity.x *= this.bounce * -1;
+
+	            //清除移动x
+	            if (Math.abs(p.velocity.x) < 0.1) p.velocity.x = 0;
+	        }
+
+	        // p.position.x = x;
+	        // p.position.y = y;
+	    },
+
+	    freeFall: function (p) {
+	        p.velocity.y += this.pm;
+	    }
+	});
+
+	/**
+	 * 粒子
+	 * @param position  位置
+	 * @param velocity  方向
+	 * @param life      生命周期
+	 * @param color     颜色
+	 * @param radius    尺寸
+	 */
+	function Particle(position, velocity, life, color, radius) {
+	    this.position = position;
+	    this.velocity = velocity;
+	    this.life = life || 1;
+	    this.color = color || new Color(Math.random(), Math.random(), Math.random());
+	    this.radius = radius || 5;
+	    this.age = 0;
+	    this.fadeOut = false;
+	    this.rigidBody = null;
+
+	}
+	Object.assign(Particle.prototype, {
+	    render: function (ctx) {
+	        var p = this;
+	        var alpha = 1;
+	        if (this.fadeOut) {
+	            alpha = 1 - p.age / p.life;
+	        }
+	        ctx.fillStyle = "rgba("
+	            + Math.floor(p.color.r * 255) + ","
+	            + Math.floor(p.color.g * 255) + ","
+	            + Math.floor(p.color.b * 255) + ","
+	            + alpha.toFixed(2) + ")";
+	        ctx.beginPath();
+	        ctx.arc(p.position.x, p.position.y, p.radius, 0, Math.PI * 2, true);
+	        ctx.closePath();
+	        ctx.fill();
+	    }
+	});
+
+	//粒子系统
+	function ParticleSystem() {
+	    this.particles = [];
+	}
+
+	Object.assign(ParticleSystem.prototype, {
+	    emit: function (particle) {
+	        this.particles.push(particle);
+	    },
+	    render: function (renderer) {
+	        var self = this;
+
+	        self.particles.forEach(function (p, i) {
+	            //重力
+	            if (p.rigidBody.useGravity) {
+	                p.rigidBody.freeFall(p);
+	            }
+
+	            p.position.addVectors(p.position, p.velocity);
+
+	            //碰撞体
+	            if (p.rigidBody.isCollider) {
+	                p.rigidBody.checkCollider(p, renderer.canvas);
+	            }
+
+	            p.render(renderer.context);
+
+	            p.age += 0.01;
+	            if (p.age >= p.life) self.kill(i);
+	        });
+	    },
+	    kill: function (index) {
+	        if (this.particles.length > 1)
+	            this.particles[index] = this.particles[this.particles.length - 1];
+	        this.particles.pop();
+	    }
+	});
+
 	//相机
 	function Camera() {
 	    Object3D.call(this);
@@ -632,17 +1409,25 @@
 	    this.canvas = document.createElement('canvas');
 	    this.context = this.canvas.getContext('2d');
 	    this.clearColor = '#000000';    //背景色
+
+	    this.updateSize = true;
+	    if (this.updateSize) {
+	        var self = this;
+	        window.onresize = function () {
+	            self.setSize(window.innerWidth, window.innerHeight);
+	        };
+	    }
 	}
 
 	Object.assign(CanvasRenderer.prototype, {
 	    //获取中心点
 	    getCenter: function () {
-	        return new Vector2$1(this.canvas.width / 2, this.canvas.height / 2);
+	        return new Vector3(this.canvas.width / 2, this.canvas.height / 2, 0);
 	    },
 
 	    //设置背景色
 	    setClearColor: function (color) {
-	        this.bgColor = color;
+	        this.clearColor = color;
 	        return this;
 	    },
 
@@ -699,17 +1484,25 @@
 
 	    clear: function () {
 	        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+	    },
+
+	    render: function () {
+	        this.context.fillStyle = this.clearColor;
+	        this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 	    }
 	});
 
-	exports.Math = _Math;
+	exports.Math = _Math$1;
 	exports.Color = Color;
-	exports.Vector2 = Vector2$1;
+	exports.Vector2 = Vector2;
 	exports.Vector3 = Vector3;
 	exports.Euler = Euler;
 	exports.Quaternion = Quaternion;
 	exports.EventDispatcher = EventDispatcher;
 	exports.Object3D = Object3D;
+	exports.RigidBody = RigidBody;
+	exports.Particle = Particle;
+	exports.ParticleSystem = ParticleSystem;
 	exports.Camera = Camera;
 	exports.PerspectiveCamera = PerspectiveCamera;
 	exports.CanvasRenderer = CanvasRenderer;

@@ -55,20 +55,20 @@
         Ball.prototype = Object.assign(Object.create(STAGE.Object3D.prototype), {
             constructor: Ball,
 
-            paint: function (render) {
+            paint: function (renderer) {
                 if (!options.useCache) {
-                    render.context.lineWidth = options.lineWidth;
+                    renderer.context.lineWidth = options.lineWidth;
                     var j = 0;
                     for (var i = 1; i < this.radius; i += 2) {
-                        render.context.beginPath();
-                        render.context.strokeStyle = 'rgba(' + (this.colors[j].r * 255).toFixed(0) + ',' + (this.colors[j].g * 255).toFixed(0) + ',' + (this.colors[j].b * 255).toFixed(0) + ',1)';
-                        render.context.arc(this.position.x, this.position.y, i, 0, 2 * Math.PI);
-                        render.context.stroke();
+                        renderer.context.beginPath();
+                        renderer.context.strokeStyle = 'rgba(' + (this.colors[j].r * 255).toFixed(0) + ',' + (this.colors[j].g * 255).toFixed(0) + ',' + (this.colors[j].b * 255).toFixed(0) + ',1)';
+                        renderer.context.arc(this.position.x, this.position.y, i, 0, 2 * Math.PI);
+                        renderer.context.stroke();
                         j++;
                     }
                 }
                 else {
-                    render.context.drawImage(this.cacheCanvas, this.position.x - this.radius, this.position.y - this.radius);
+                    renderer.context.drawImage(this.cacheCanvas, this.position.x - this.radius, this.position.y - this.radius);
                 }
             },
 
@@ -85,19 +85,19 @@
                 }
             },
 
-            move: function (render) {
+            move: function (renderer) {
                 this.position.x += this.vx;
                 this.position.y += this.vy;
-                if (this.position.x > (render.canvas.width - this.radius) || this.position.x < this.radius) {
-                    this.position.x = this.position.x < this.radius ? this.radius : (render.canvas.width - this.radius);
+                if (this.position.x > (renderer.canvas.width - this.radius) || this.position.x < this.radius) {
+                    this.position.x = this.position.x < this.radius ? this.radius : (renderer.canvas.width - this.radius);
                     this.vx = -this.vx;
                 }
-                if (this.position.y > (render.canvas.height - this.radius) || this.position.y < this.radius) {
-                    this.position.y = this.position.y < this.radius ? this.radius : (render.canvas.height - this.radius);
+                if (this.position.y > (renderer.canvas.height - this.radius) || this.position.y < this.radius) {
+                    this.position.y = this.position.y < this.radius ? this.radius : (renderer.canvas.height - this.radius);
                     this.vy = -this.vy;
                 }
 
-                this.paint(render);
+                this.paint(renderer);
             }
         });
 
@@ -131,7 +131,7 @@
         });
 
         for (var i = 0; i < 100; i++) {
-            var b = new STAGE.Ball(STAGE.Math.randFloat(20, 40), renderer.context);
+            var b = new STAGE.Ball(STAGE.Math.randFloat(20, 40));
             b.position.set(STAGE.Math.randFloat(0, renderer.canvas.width), STAGE.Math.randFloat(0, renderer.canvas.height), 0);
             balls.push(b);
         }
